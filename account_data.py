@@ -1,6 +1,6 @@
 from __future__ import (absolute_import, division, print_function,)
 #                        unicode_literals)
-
+import config
 import collections
 import sys
 
@@ -18,15 +18,21 @@ import ib.ext.Contract
 
 import pandas as pd
 
+
+import logging
+
+logging.basicConfig(level=None)
+
+
 pd.set_option('display.max_columns', 500)
 
-
+from datetime import datetime,date
 
 
 from ib_insync import *
 
 
-
+from os import path
 
 
 
@@ -127,16 +133,48 @@ def get_account_value(port):
 ports_paper = {'TWS': 7497,'IBGW':4002}
 
 
+ports_live = {'TWS': 7497 , 'IBGW':4001 }
 
-# ibm = IbManager(port=ports_paper['TWS'])
-#
-# df = ibm.get_account_update()[1]
-#
+# # #
+ibm = IbManager(port=ports_live['TWS'])
+# #
+df = ibm.get_account_update()[1]
+# # #
 # print(df)
-
-
-val = get_account_value(ports_paper['TWS'])
+# p_l_total = df['unrealizedPNL'].sum()
+#
+#
+# # #
+# # val = get_account_value(ports_paper['TWS'])
+val = get_account_value(ports_live['TWS'])
 print(val)
+# print(p_l_total)
 
 
+def save_pos_csv(path = config.db_path+'/IBKR', df = df,acc = 'NaN'):
+
+    df.to_csv(path+'/Positions'+datetime.today().strftime(format="%Y-%m-%d-")+acc+'.csv')
+
+
+def line_prepender(acc= '2530531'):
+
+
+    PATH = path.join(config.db_path, 'mysql_db_csv/portfolio_value/',acc+'.csv')
+    df = pd.read_csv(PATH)
+    print(df.tail())
+    new_row=pd.DataFrame([[date.today().strftime('%Y-%m-%d'),val["liquidation_value"],2,int(acc),float(val["liquidation_value"])-float(val["total_cash"]),val["total_cash"],'USD']],columns=['Date','total_value','broker_id','account_number','portfolio_value','cash','currency'])
+    new_row=new_row.reset_index(drop=True)
+    df=df.reset_index(drop=True)
+    print(new_row)
+    df=df.append(new_row.reset_index(drop=True))
+
+    df=df.reset_index(drop=True)
+    df['entry']=0
+    print(df.tail(10))
+    df.to_csv(PATH, index=False)
+
+
+# save_pos_csv()
+
+line_prepender()
 sys.exit(0)  # Ensure ib thread is terminated
