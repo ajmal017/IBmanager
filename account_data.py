@@ -141,15 +141,17 @@ ibm = IbManager(port=ports_live['IBGW'])
 # #
 df = ibm.get_account_update()[1]
 # # #
-print(df)
-# p_l_total = df['unrealizedPNL'].sum()
+
+p_l_total = df['unrealizedPNL'].sum()
 #
 #
 # # #
 # # val = get_account_value(ports_paper['TWS'])
 val = get_account_value(ports_live['IBGW'])
+
+print(df)
 print(val)
-# print(p_l_total)
+print(p_l_total)
 
 
 def save_pos_csv(path = config.db_path+'/IBKR', df = df,acc = 'NaN'):
