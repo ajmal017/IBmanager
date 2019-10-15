@@ -156,7 +156,7 @@ print(p_l_total)
 
 def save_pos_csv(path = config.db_path+'/IBKR', df = df,acc = 'NaN'):
 
-    df.to_csv(path+'/Positions'+datetime.today().strftime(format="%Y-%m-%d-")+acc+'.csv')
+    df.to_csv(path+'/Positions-'+datetime.today().strftime(format="%Y-%m-%d-")+acc+'.csv')
 
 
 def line_prepender(acc= '2530531'):
